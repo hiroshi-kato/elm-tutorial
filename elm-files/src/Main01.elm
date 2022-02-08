@@ -4,4 +4,9 @@ import Html exposing (text)
 
 
 main =
-    text "Hello, Elm"
+    text greeting
+
+
+greeting : String
+greeting =
+    "Hello, Static Elm"
