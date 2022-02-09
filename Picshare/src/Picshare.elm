@@ -1,9 +1,31 @@
 module Picshare exposing (main)
 
-import Html exposing (Html, div, text)
+import Html exposing (..)
+import Html.Attributes exposing (class, src)
+
+
+viewDetailedPhoto : String -> String -> Html msg
+viewDetailedPhoto url caption =
+    div [ class "detailed-photo" ]
+        [ img [ src url ] []
+        , div [ class "photo-info" ]
+            [ h2 [ class "caption" ] [ text caption ] ]
+        ]
+
+
+baseUrl : String
+baseUrl =
+    "https://programming-elm.com/"
 
 
 main : Html msg
 main =
-    -- 1つ目の[]は属性、2つ目の[]は子要素
-    div [] [ text "Picshare" ]
+    div []
+        [ div [ class "header" ]
+            [ h1 [] [ text "Picshare" ] ]
+        , div [ class "conent-flow" ]
+            [ viewDetailedPhoto (baseUrl ++ "1.jpg") "Surfing"
+            , viewDetailedPhoto (baseUrl ++ "2.jpg") "The Fox"
+            , viewDetailedPhoto (baseUrl ++ "3.jpg") "Evening"
+            ]
+        ]
