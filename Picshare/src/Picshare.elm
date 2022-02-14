@@ -2,8 +2,8 @@ module Picshare exposing (main)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, src)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, disabled, placeholder, src, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 
 
 baseUrl : String
@@ -15,12 +15,19 @@ type alias Model =
     { url : String
     , caption : String
     , liked : Bool
+    , comments : List String
+    , newComment : String
     }
 
 
 initialModel : Model
 initialModel =
-    Model (baseUrl ++ "1.jpg") "Surfing" False
+    { url = baseUrl ++ "1.jpg"
+    , caption = "Surfing"
+    , liked = False
+    , comments = [ "Cowabunga, dude!" ]
+    , newComment = ""
+    }
 
 
 viewLoveButton : Model -> Html Msg
@@ -43,6 +50,47 @@ viewLoveButton model =
         ]
 
 
+viewComment : String -> Html Msg
+viewComment comment =
+    li []
+        [ strong [] [ text "Comment:" ]
+        , text (" " ++ comment)
+        ]
+
+
+viewCommentList : List String -> Html Msg
+viewCommentList comments =
+    case comments of
+        [] ->
+            text ""
+
+        _ ->
+            div [ class "comments" ]
+                [ ul []
+                    (List.map viewComment comments)
+                ]
+
+
+viewCommets : Model -> Html Msg
+viewCommets model =
+    div []
+        [ viewCommentList model.comments
+        , form [ class "new-comment", onSubmit SaveComment ]
+            [ input
+                [ type_ "text"
+                , placeholder "Add a comment..."
+                , value model.newComment
+                , onInput UpdateComment
+                ]
+                []
+            , button
+                [ disabled (String.isEmpty model.newComment)
+                ]
+                [ text "Save" ]
+            ]
+        ]
+
+
 viewDetailedPhoto : Model -> Html Msg
 viewDetailedPhoto model =
     div [ class "detailed-photo" ]
@@ -50,6 +98,7 @@ viewDetailedPhoto model =
         , div [ class "photo-info" ]
             [ viewLoveButton model
             , h2 [ class "caption" ] [ text model.caption ]
+            , viewCommets model
             ]
         ]
 
@@ -66,6 +115,25 @@ view model =
 
 type Msg
     = ToggleLike
+    | UpdateComment String
+    | SaveComment
+
+
+saveNewComment : Model -> Model
+saveNewComment model =
+    let
+        comment =
+            String.trim model.newComment
+    in
+    case comment of
+        "" ->
+            model
+
+        _ ->
+            { model
+                | comments = model.comments ++ [ comment ]
+                , newComment = ""
+            }
 
 
 update :
@@ -76,6 +144,12 @@ update msg model =
     case msg of
         ToggleLike ->
             { model | liked = not model.liked }
+
+        UpdateComment comment ->
+            { model | newComment = comment }
+
+        SaveComment ->
+            saveNewComment model
 
 
 main : Program () Model Msg
